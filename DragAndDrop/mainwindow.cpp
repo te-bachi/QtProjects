@@ -25,6 +25,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->list->setModel(tableModelList);
     setupTableView(ui->inbox);
     setupTableView(ui->list);
+
+    //connect(ui->inbox->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+    //        SLOT(onSelectionChanged(const QItemSelection &, const QItemSelection &)));
+    connect(ui->inbox->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+            SLOT(onCurrentRowChanged(const QModelIndex &, const QModelIndex &)));
+
 }
 
 void
@@ -40,7 +46,7 @@ MainWindow::setupTableView(QTableView *tableView)
 
     /* void QAbstractItemViewPrivate::clearOrRemove() */
     /* overwrite */
-    //tableView->setDragDropOverwriteMode(true);
+    tableView->setDragDropOverwriteMode(false);
 }
 
 MainWindow::~MainWindow()
@@ -70,4 +76,25 @@ void
 MainWindow::onRightRemove()
 {
     qDebug() << "onRightRemove";
+}
+
+void
+MainWindow::onCellActivate(const QModelIndex &index)
+{
+    qDebug() << "row=" << index.row() << " column=" << index.column();
+}
+
+void
+MainWindow::onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    Q_UNUSED(deselected);
+    if (!selected.indexes().isEmpty())
+        qDebug() << "onSelectionChanged: row=" << selected.indexes().first().row() << " column=" << selected.indexes().first().column();
+}
+
+void
+MainWindow::onCurrentRowChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_UNUSED(previous);
+    qDebug() << "onCurrentRowChanged: row=" << current.row() << " column=" << current.column();
 }

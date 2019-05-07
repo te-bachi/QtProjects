@@ -125,10 +125,10 @@ TableModel::setData(const QModelIndex &index, const QVariant &value, int role)
         return true;
     } else if (index.isValid() && role == Qt::DisplayRole) {
             qDebug() << "setData(row=" << index.row() << " col=" << index.column() << " Qt::DisplayRole)";
-            if (index.column() == 0) {
-                removeRows(index.row(), 1, QModelIndex());
-            }
-            return true;
+            //if (index.column() == 0) {
+            //    removeRows(index.row(), 1, QModelIndex());
+            //}
+            //return true;
     }
     qDebug() << "size=" << m_measurementList.size();
     return false;
@@ -148,22 +148,31 @@ TableModel::insertRows(int position, int rows, const QModelIndex &index)
 }
 
 bool
-TableModel::removeRows(int position, int rows, const QModelIndex &index)
+TableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    Q_UNUSED(index);
-    beginRemoveRows(QModelIndex(), position, position + rows - 1);
+    Q_UNUSED(parent);
+    beginRemoveRows(QModelIndex(), row, row + count - 1);
 
     qDebug() << "size=" << m_measurementList.size();
     for (int row = 0; row < m_measurementList.size(); ++row)
-        qDebug() << position << "/" << row << " " << m_measurementList.value(row).m_text;
+        qDebug() << count << "/" << row << " " << m_measurementList.value(row).m_text;
 
-    for (int row = 0; row < rows; ++row)
-        m_measurementList.removeAt(position);
+    for (int r = 0; r < count; ++r)
+        m_measurementList.removeAt(row);
 
     endRemoveRows();
     return true;
 }
 
+bool
+TableModel::removeColumns(int column, int count, const QModelIndex &parent)
+{
+    Q_UNUSED(column);
+    Q_UNUSED(count);
+    Q_UNUSED(parent);
+
+    return true;
+}
 
 /*****************************************************************************/
 
@@ -208,8 +217,12 @@ TableModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int ro
     Q_UNUSED(data);
     Q_UNUSED(action);
     Q_UNUSED(row);
-    Q_UNUSED(column);
+    //Q_UNUSED(column);
     Q_UNUSED(parent);
+
+    if (column > 0) {
+        return false;
+    }
 
     return true;
 }
@@ -219,24 +232,30 @@ TableModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, 
 {
     Q_UNUSED(action);
     Q_UNUSED(column);
+    Q_UNUSED(parent);
 
     qDebug() << "action=" << action << " row=" << row << " col=" << column;
 
+    if (action == Qt::IgnoreAction)
+         return true;
+
+    int beginRow = rowCount(QModelIndex());
+    int rows = 1;
+
     QByteArray xmlData = qUncompress(data->data(MimeType));
     QXmlStreamReader reader(xmlData);
-    if (row == -1)
-        if ((row = parent.row()) == -1)
-            row = 0;
 
-    beginInsertRows(parent, row, row);
+    insertRows(beginRow, rows, QModelIndex());
     MeasurementData m;
     readTasks(&reader, &m);
-    m_measurementList.append(m);
-    qDebug() << "size=" << m_measurementList.size();
-    endInsertRows();
 
-    QModelIndex i = index(0, 0, QModelIndex());
-    emit dataChanged(i, i, {Qt::EditRole});
+    QModelIndex idx = index(beginRow, 0, QModelIndex());
+    setData(idx, QVariant(m.m_time));
+    idx = index(beginRow, 1, QModelIndex());
+    setData(idx, QVariant(m.m_value));
+    idx = index(beginRow, 2, QModelIndex());
+    setData(idx, QVariant(m.m_text));
+
     return true;
 }
 

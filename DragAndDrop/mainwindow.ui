@@ -154,11 +154,28 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>inbox</sender>
+   <signal>activated(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onCellActivate(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>314</x>
+     <y>391</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>369</x>
+     <y>435</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onLeftAdd()</slot>
   <slot>onLeftRemove()</slot>
   <slot>onRightAdd()</slot>
   <slot>onRightRemove()</slot>
+  <slot>onCellActivate(QModelIndex)</slot>
  </slots>
 </ui>

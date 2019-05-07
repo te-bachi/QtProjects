@@ -27,7 +27,8 @@ class TableModel : public QAbstractTableModel
 
         bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
         bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
-        bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
+        bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+        bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex()) override;
 
         QStringList mimeTypes() const override;
         QMimeData *mimeData(const QModelIndexList &indexes) const override;

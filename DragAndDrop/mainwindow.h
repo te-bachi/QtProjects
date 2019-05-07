@@ -37,6 +37,9 @@ class MainWindow : public QMainWindow
         void onLeftRemove();
         void onRightAdd();
         void onRightRemove();
+        void onCellActivate(const QModelIndex &index);
+        void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+        void onCurrentRowChanged(const QModelIndex &current, const QModelIndex &previous);
 
 };
 
